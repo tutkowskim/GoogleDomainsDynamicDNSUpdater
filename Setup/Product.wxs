@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+	<Product Id="*" Name="Setup" Language="1033" Version="1.0.0.0" Manufacturer="Mark Tutkowski" UpgradeCode="{82A197F8-C63A-4B86-AAC7-A3E3101645BC}">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="Setup" Level="1">
+			<ComponentGroupRef Id="ProductFiles" />
+      <ComponentGroupRef Id="Shortcuts" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="GoogleDomainsDynamicDNSUpdater" />
+        <Directory Id="StartupFolder" />
+			</Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="GoogleDomainsDynamicDNSUpdater"/>
+      </Directory>
+		</Directory>
+
+    <ComponentGroup Id="Shortcuts" Directory="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{C1EA7F1A-9311-4742-A532-2978382BEE73}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="GoogleDomainsDynamicDNSUpdater"
+                  Description="Update Google Domain Records for DNS Domains."
+                  Target="[#GoogleDomainsDynamicDNSUpdater.exe]"
+                  WorkingDirectory="INSTALLFOLDER">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="GoogleDomainsDynamicDNSUpdater_AppUserModelID" />
+        </Shortcut>
+        <Shortcut Id="ApplicationShortcutInStartUpFolder"
+                  Directory="StartupFolder"
+                  Name="GoogleDomainsDynamicDNSUpdater"
+                  Description="Update Google Domain Records for DNS Domains."
+                  Target="[#GoogleDomainsDynamicDNSUpdater.exe]"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Tutkowski\GoogleDomainsDynamicDNSUpdater" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>
