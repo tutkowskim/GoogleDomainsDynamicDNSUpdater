@@ -53,11 +53,6 @@ namespace GoogleDomainsDynamicDNSUpdater
                     {
                         timer.Enabled = value;
                         OnPropertyChanged("Enabled");
-
-                        if (value == true)
-                        {
-                            UpdateDomain();
-                        }
                     }
 
                 }
@@ -149,14 +144,6 @@ namespace GoogleDomainsDynamicDNSUpdater
             }
 
             return securePassword;
-        }
-
-        /// <summary>
-        /// Send an update to google domains with our current IP address
-        /// </summary>
-        private void UpdateDomain()
-        {
-            UpdateDomainAsync(null, null);
         }
 
         /// <summary>
