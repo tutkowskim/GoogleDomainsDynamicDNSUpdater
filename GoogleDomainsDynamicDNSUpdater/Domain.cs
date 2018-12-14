@@ -85,7 +85,7 @@ namespace GoogleDomainsDynamicDNSUpdater
             {
                 if (timer != null)
                 {
-                    timer.Interval = value * 60 * 60 * 100; // Convert hours to ms
+                    timer.Interval = value * 60 * 60 * 1000; // Convert hours to ms
                     OnPropertyChanged("UpdateInterval");
                 }
             }

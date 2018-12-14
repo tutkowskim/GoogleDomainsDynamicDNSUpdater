@@ -35,6 +35,16 @@
     <Compile Include="Product.wxs" />
     <Compile Include="ProductFiles.wxs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GoogleDomainsDynamicDNSUpdater\GoogleDomainsDynamicDNSUpdater.csproj">
+      <Name>GoogleDomainsDynamicDNSUpdater</Name>
+      <Project>{526b9718-eed3-4b9f-ab24-70e2adb364e6}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" Exists('$(WixTargetsPath)') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" !Exists('$(WixTargetsPath)') ">
     <Error Text="The WiX Toolset v4 build tools must be installed to build this project. To download the WiX Toolset v4, see http://wixtoolset.org/releases/" />

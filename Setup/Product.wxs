@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-	<Product Id="*" Name="Setup" Language="1033" Version="1.0.0.0" Manufacturer="Mark Tutkowski" UpgradeCode="{82A197F8-C63A-4B86-AAC7-A3E3101645BC}">
+	<Product Id="*" Name="GoogleDomainsDynamicDNSUpdater" Language="1033" Version="1.0.0.0" Manufacturer="Mark Tutkowski" UpgradeCode="{82A197F8-C63A-4B86-AAC7-A3E3101645BC}">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate />
 
-		<Feature Id="ProductFeature" Title="Setup" Level="1">
+		<Feature Id="ProductFeature" Title="GoogleDomainsDynamicDNSUpdater" Level="1">
 			<ComponentGroupRef Id="ProductFiles" />
       <ComponentGroupRef Id="Shortcuts" />
 		</Feature>
+
+    <!-- Add/Remove Programs Icon -->
+    <Icon Id="icon.ico" SourceFile="$(var.GoogleDomainsDynamicDNSUpdater.ProjectDir)IconBlack.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 	</Product>
 
 	<Fragment>
