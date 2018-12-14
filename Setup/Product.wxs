@@ -12,7 +12,7 @@
 		</Feature>
 
     <!-- Add/Remove Programs Icon -->
-    <Icon Id="icon.ico" SourceFile="$(var.GoogleDomainsDynamicDNSUpdater.ProjectDir)IconBlack.ico"/>
+    <Icon Id="icon.ico" SourceFile="$(var.GoogleDomainsDynamicDNSUpdater.ProjectDir)Assets/IconBlack.ico"/>
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 	</Product>
 
