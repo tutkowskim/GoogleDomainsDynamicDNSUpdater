@@ -25,7 +25,12 @@ namespace GoogleDomainsDynamicDNSUpdater
             base.OnStartup(e);
 
             // Load configuration from disk and save it when it changes
-            Domains = LoadConfiguration(Assets.ConfigurationFile);
+            Domains = new ObservableCollection<Domain>();
+            Domains.CollectionChanged += Domains_CollectionChanged;
+            foreach(Domain domain in LoadConfiguration(Assets.ConfigurationFile))
+            {
+                Domains.Add(domain);
+            }
 
             // Initialize Tray Icon
             System.Drawing.Icon icon;
@@ -46,28 +51,44 @@ namespace GoogleDomainsDynamicDNSUpdater
             TrayIcon.MouseClick += EditConfig;
         }
 
+        private void Domains_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs eventArgs)
+        {
+            foreach(Domain domain in eventArgs.NewItems)
+            {
+                domain.ErrorOccured += Domain_ErrorOccured;
+            }
+        }
+
+        private void Domain_ErrorOccured(string error)
+        {
+            ToastManager.Toast("An error occured!", error, EditConfig);
+        }
+
         /// <summary>
         /// Event handler to edit the configuration.
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EditConfig(object sender, EventArgs e)
+        /// <param name="eventArgs"></param>
+        private void EditConfig(object sender, object eventArgs)
         {
-            if (ConfigWindow == null)
+            Dispatcher.BeginInvoke((Action)delegate ()
             {
-                ConfigWindow = new ConfigWindow(Domains);
-                ConfigWindow.Closing += delegate { ConfigWindow = null; };
-                ConfigWindow.Show();
-            }
-            else
-            {
-                if (ConfigWindow.WindowState == WindowState.Minimized)
+                if (ConfigWindow == null)
                 {
-                    ConfigWindow.WindowState = WindowState.Normal;
+                    ConfigWindow = new ConfigWindow(Domains);
+                    ConfigWindow.Closing += delegate { ConfigWindow = null; };
+                    ConfigWindow.Show();
                 }
-                ConfigWindow.Topmost = true;
-                ConfigWindow.Focus();
-            }
+                else
+                {
+                    if (ConfigWindow.WindowState == WindowState.Minimized)
+                    {
+                        ConfigWindow.WindowState = WindowState.Normal;
+                    }
+                    ConfigWindow.Topmost = true;
+                    ConfigWindow.Focus();
+                }
+            });
         }
 
         /// <summary>

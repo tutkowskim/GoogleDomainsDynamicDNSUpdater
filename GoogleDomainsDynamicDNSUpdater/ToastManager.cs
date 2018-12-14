@@ -1,4 +1,6 @@
-﻿using Windows.Data.Xml.Dom;
+﻿using System;
+using Windows.Data.Xml.Dom;
+using Windows.Foundation;
 using Windows.UI.Notifications;
 
 namespace GoogleDomainsDynamicDNSUpdater
@@ -18,7 +20,7 @@ namespace GoogleDomainsDynamicDNSUpdater
         /// </summary>
         /// <param name="title">Title for the toast</param>
         /// <param name="summary">Summary in the toast</param>
-        public static void Toast(string title, string summary)
+        public static void Toast(string title, string summary, TypedEventHandler<ToastNotification, object> callback)
         {
             XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastImageAndText03);
 
@@ -33,6 +35,8 @@ namespace GoogleDomainsDynamicDNSUpdater
             imageElements[0].Attributes.GetNamedItem("src").NodeValue = imagePath;
 
             ToastNotification toast = new ToastNotification(toastXml);
+            toast.Activated += callback;
+
             ToastNotificationManager.CreateToastNotifier(ApplicationId).Show(toast);
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Security;
 using System.Security.Cryptography;
@@ -9,10 +10,15 @@ using System.Xml.Serialization;
 
 namespace GoogleDomainsDynamicDNSUpdater
 {
-    public class Domain
+    public class Domain : INotifyPropertyChanged
     {
         private Timer timer;
         private static readonly HttpClient client = new HttpClient();
+
+        public delegate void ErrorOccuredEventHandler(string error);
+        public event ErrorOccuredEventHandler ErrorOccured;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public Domain()
         {
@@ -46,6 +52,7 @@ namespace GoogleDomainsDynamicDNSUpdater
                     if (timer.Enabled != value)
                     {
                         timer.Enabled = value;
+                        OnPropertyChanged("Enabled");
 
                         if (value == true)
                         {
@@ -79,6 +86,7 @@ namespace GoogleDomainsDynamicDNSUpdater
                 if (timer != null)
                 {
                     timer.Interval = value * 60 * 60 * 100; // Convert hours to ms
+                    OnPropertyChanged("UpdateInterval");
                 }
             }
         }
@@ -156,29 +164,50 @@ namespace GoogleDomainsDynamicDNSUpdater
         /// the rest api: https://support.google.com/domains/answer/6147083?hl=en
         /// </summary>
         /// <param name="sender">The timer that caused this event.</param>
-        /// <param name="e">Timer event args/</param>
-        private async void UpdateDomainAsync(object sender, ElapsedEventArgs e)
+        /// <param name="eventArgs">Timer event args/</param>
+        private async void UpdateDomainAsync(object sender, ElapsedEventArgs eventArgs)
         {
-            var url = "https://domains.google.com/nic/update";
-
-            using (var client = new HttpClient())
+            try
             {
-                var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                const string url = "https://domains.google.com/nic/update";
 
-                var values = new Dictionary<string, string>
+                using (var client = new HttpClient())
+                {
+                    var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+                    var values = new Dictionary<string, string>
                 {
                     { "hostname", DomainUrl },
                 };
 
-                var content = new FormUrlEncodedContent(values);
-                var response = await client.PostAsync(url, content);
-                var RequestUri = response.RequestMessage.RequestUri;
-                var responseString = await response.Content.ReadAsStringAsync();
+                    var content = new FormUrlEncodedContent(values);
+                    var response = await client.PostAsync(url, content);
+                    var responseString = await response.Content.ReadAsStringAsync();
 
-                Console.WriteLine(RequestUri);
-                Console.WriteLine(responseString);
+                    if (!responseString.ToLower().Contains("good") && !responseString.ToLower().Contains("nochg"))
+                    {
+                        // The client encountered a failure case.
+                        HandleError($"Unexpected response: {responseString}");
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                HandleError(e.Message);
+            }
+        }
+
+        void HandleError(string error)
+        {
+            // Stop the timer when an error is encoutered
+            Enabled = false;
+            ErrorOccured?.Invoke(error);
+        }
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }
