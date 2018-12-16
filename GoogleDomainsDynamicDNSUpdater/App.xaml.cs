@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Windows;
+using log4net.Config;
 
 namespace GoogleDomainsDynamicDNSUpdater
 {
@@ -23,6 +24,9 @@ namespace GoogleDomainsDynamicDNSUpdater
         {
             // Call the base startup code
             base.OnStartup(e);
+
+            // Setup logging
+            XmlConfigurator.Configure(new System.IO.FileInfo(Assets.LoggingConfigurationFile));
 
             // Load configuration from disk and save it when it changes
             Domains = new ObservableCollection<Domain>();

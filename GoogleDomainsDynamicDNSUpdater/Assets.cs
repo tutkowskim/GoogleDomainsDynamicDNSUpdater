@@ -40,5 +40,16 @@ namespace GoogleDomainsDynamicDNSUpdater
                 return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GoogleDomainsDynamicDNSUpdater", "Config.xml");
             }
         }
+
+        /// <summary>
+        /// Configuration file for LOG4NET
+        /// </summary>
+        public static string LoggingConfigurationFile
+        {
+            get
+            {
+                return Path.Combine(InstallDirectory, "trace_config.xml");
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
@@ -14,6 +15,7 @@ namespace GoogleDomainsDynamicDNSUpdater
     {
         private Timer timer;
         private static readonly HttpClient client = new HttpClient();
+        private static readonly ILog logger = LogManager.GetLogger(typeof(Domain));
 
         public delegate void ErrorOccuredEventHandler(string error);
         public event ErrorOccuredEventHandler ErrorOccured;
@@ -183,6 +185,8 @@ namespace GoogleDomainsDynamicDNSUpdater
         /// <param name="eventArgs">Timer event args/</param>
         private async void UpdateDomainAsync(object sender, ElapsedEventArgs eventArgs)
         {
+            logger.Debug($"Atempting to update the Domain: {DomainUrl}");
+
             try
             {
                 const string url = "https://domains.google.com/nic/update";
@@ -198,8 +202,12 @@ namespace GoogleDomainsDynamicDNSUpdater
                 };
 
                     var content = new FormUrlEncodedContent(values);
+
                     var response = await client.PostAsync(url, content);
+                    logger.Debug($"Sending the request to: {response.RequestMessage.RequestUri}");
+
                     var responseString = await response.Content.ReadAsStringAsync();
+                    logger.Debug($"Received the response: {responseString}");
 
                     if (!responseString.ToLower().Contains("good") && !responseString.ToLower().Contains("nochg"))
                     {
@@ -210,6 +218,7 @@ namespace GoogleDomainsDynamicDNSUpdater
             }
             catch (Exception e)
             {
+                logger.Error($"Update for the domain {DomainUrl} failed with the message: {e.Message}");
                 HandleError(e.Message);
             }
         }
