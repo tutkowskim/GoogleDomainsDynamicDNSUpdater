@@ -26,35 +26,43 @@ namespace GoogleDomainsDynamicDNSUpdater
             {
                 AutoReset = true,
                 Enabled = false,
-                Interval = 1 * 1000 * 60 * 60, // 1 hour
             };
             timer.Elapsed += new ElapsedEventHandler(UpdateDomainAsync);
         }
 
+        private bool _initialized = false;
+        [XmlIgnore]
+        public bool Initialized
+        {
+            get
+            {
+                return _initialized;
+            }
+            set
+            {
+                if (_initialized != value)
+                {
+                    _initialized = value;
+                    UpdateTimer();
+                }
+            }
+        }
+
+        private bool _enabled = false;
         [XmlElement("Enabled")]
         public bool Enabled
         {
             get
             {
-                if (timer != null)
-                {
-                    return timer.Enabled;
-                }
-                else
-                {
-                    return false;
-                }
+                return _enabled;
             }
             set
             {
-                if (timer != null)
+                if (_enabled != value)
                 {
-                    if (timer.Enabled != value)
-                    {
-                        timer.Enabled = value;
-                        OnPropertyChanged("Enabled");
-                    }
-
+                    _enabled = value;
+                    OnPropertyChanged("Enabled");
+                    UpdateTimer();
                 }
             }
         }
@@ -62,26 +70,20 @@ namespace GoogleDomainsDynamicDNSUpdater
         [XmlElement("DomainUrl")]
         public string DomainUrl { get; set; } = string.Empty;
 
+        private double _updateInterval = 1;
         [XmlElement("UpdateInterval")]
         public double UpdateInterval
         {
             get
             {
-                if (timer != null)
-                {
-                    return timer.Interval / 1000 / 60 / 60; // Convert ms to hours
-                }
-                else
-                {
-                    return -1;
-                }
+                return _updateInterval;
             }
             set
             {
-                if (timer != null)
+                if (_updateInterval != value)
                 {
-                    timer.Interval = value * 60 * 60 * 1000; // Convert hours to ms
-                    OnPropertyChanged("UpdateInterval");
+                    _updateInterval = value;
+                    UpdateTimer();
                 }
             }
         }
@@ -144,6 +146,33 @@ namespace GoogleDomainsDynamicDNSUpdater
             }
 
             return securePassword;
+        }
+
+        /// <summary>
+        /// Configure the timer for updates
+        /// </summary>
+        private void UpdateTimer()
+        {
+            if (timer != null)
+            {
+                timer.Interval = UpdateInterval * 60 * 60 * 1000; // Hours to ms
+                timer.Enabled = Initialized && Enabled;
+            }
+
+            // Send out an update right away
+            UpdateDomain();
+        }
+
+        /// <summary>
+        /// Send an update to google domains with our current IP address using
+        /// the rest api: https://support.google.com/domains/answer/6147083?hl=en
+        /// </summary>
+        private void UpdateDomain()
+        {
+            if (Initialized && Enabled)
+            {
+                UpdateDomainAsync(null, null);
+            }
         }
 
         /// <summary>

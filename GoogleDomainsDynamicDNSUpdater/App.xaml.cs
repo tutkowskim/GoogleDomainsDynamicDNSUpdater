@@ -30,6 +30,7 @@ namespace GoogleDomainsDynamicDNSUpdater
             foreach(Domain domain in LoadConfiguration(Assets.ConfigurationFile))
             {
                 Domains.Add(domain);
+                domain.Initialized = true;
             }
 
             // Initialize Tray Icon
@@ -51,14 +52,27 @@ namespace GoogleDomainsDynamicDNSUpdater
             TrayIcon.MouseClick += EditConfig;
         }
 
+        /// <summary>
+        /// Configure new domains
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="eventArgs"></param>
         private void Domains_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs eventArgs)
         {
-            foreach(Domain domain in eventArgs.NewItems)
+            if (eventArgs.NewItems != null)
             {
-                domain.ErrorOccured += Domain_ErrorOccured;
+                foreach (Domain domain in eventArgs.NewItems)
+                {
+                    domain.ErrorOccured += Domain_ErrorOccured;
+                    domain.Initialized = true;
+                }
             }
         }
 
+        /// <summary>
+        /// Handle a domain update error.
+        /// </summary>
+        /// <param name="error"></param>
         private void Domain_ErrorOccured(string error)
         {
             ToastManager.Toast("An error occured!", error, EditConfig);
