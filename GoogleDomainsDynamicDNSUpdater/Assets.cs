@@ -26,7 +26,7 @@ namespace GoogleDomainsDynamicDNSUpdater
         {
             get
             {
-                return Path.Combine(InstallDirectory, "IconWhite.png");
+                return Path.Combine(InstallDirectory, "Assets", "IconWhite.png");
             }
         }
 
